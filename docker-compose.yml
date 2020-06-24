@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  client:
+    restart: always
+    image: node:12.16.3-alpine
+    working_dir: /srv/client
+    command: sh -c "yarn && yarn dev --fix"
+    environment:
+      API_URL: http://server:1337/graphql
+    links:
+      - server:server
+    volumes:
+      - ./client:/srv/client
+    ports:
+      - 3000:3000
+
+  server:
+    restart: always
+    image: node:12.16.3-alpine
+    working_dir: /srv/app
+    command: sh -c "yarn && yarn develop"
+    environment:
+      DATABASE_CLIENT: '${DATABASE_CLIENT:-postgres}'
+      DATABASE_NAME: '${DATABASE_NAME:-strapi}'
+      DATABASE_HOST: '${DATABASE_HOST:-postgres}'
+      DATABASE_PORT: '${DATABASE_PORT:-5432}'
+      DATABASE_USERNAME: '${POSTGRES_USER:-root}'
+      DATABASE_PASSWORD: '${POSTGRES_PASSWORD:-root}'
+    links:
+      - postgres:postgres
+    volumes:
+      - ./server:/srv/app
+    ports:
+      - 1337:1337
+
+  postgres:
+    restart: always
+    image: postgres
+    environment:
+      POSTGRES_USER: '${POSTGRES_USER:-root}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-root}'
+      POSTGRES_DB: '${DATABASE_NAME:-strapi}'
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+  admin:
+    restart: always
+    image: adminer
+    links:
+      - postgres:postgres
+    ports:
+      - '${ADMINER_PORT:-5050}:8080'
