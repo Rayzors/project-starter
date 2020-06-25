@@ -1,5 +1,5 @@
-console.log(process.env.API_URL)
 export default {
+  target: 'static',
   server: {
     host: '0.0.0.0'
   },
@@ -52,7 +52,7 @@ export default {
     errorHandler: '~/plugins/apollo/error-handler.js',
     clientConfigs: {
       default: {
-        httpEndpoint: process.env.API_URL || "http://localhost:1337/graphql"
+        httpEndpoint: process.env.API_URL || 'http://localhost:1337/graphql'
       }
     }
   },
